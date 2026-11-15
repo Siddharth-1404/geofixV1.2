@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoFix - Responsive Light/Dark</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Navbar (Cleaned) -->
+  <header class="navbar">
+    <div class="nav-left">
+      <img src="image_2.png" alt="GeoFix Logo" class="nav-logo-img" style="width: 32px; height: 32px; margin-right: 10px; object-fit: contain;">
+      <span class="logo-text" style="font-size: 16px;">GeoFix</span>
+      <!-- Yahan se 'Campus Ops' / Badge hata diya gaya hai -->
+    </div>
+    
+    <div class="nav-right">
+      <!-- 🌟 Naya Community Feed Button -->
+      <button class="nav-btn no-print" onclick="window.location.href='feed.html'" style="color: #10B981; border: 1px solid #10B981; font-weight: 600; margin-right: 8px;">
+        🌟 Campus Feed
+      </button>
+      
+      <button id="theme-btn" class="nav-btn no-print" style="font-size: 16px;">☼</button>
+      <button class="nav-btn no-print" onclick="window.location.href='index.html'" style="font-size: 13px;">Logout</button>
+    </div>
+  </header>
+
+  <!-- Responsive Dashboard Container -->
+ <!-- Modern SaaS Dashboard Layout -->
+  <div class="saas-dashboard animate-fade-in">
+    
+    <!-- Left Column: Primary Workspace (Ticket Generation) -->
+    <div class="workspace-main">
+      <div class="section-header">
+        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">Create New Ticket</h2>
+        <p class="light-text" style="font-size: 14px;">Log campus facility issues for immediate resolution.</p>
+      </div>
+
+      <div class="modern-card">
+        
+        <!-- STEP 1: AI PHOTO SCANNER -->
+        <label class="form-label">1. Capture Issue Photo</label>
+        
+        <!-- Upload Area -->
+        <div class="ai-upload-box" id="upload-box" onclick="startAIFlow()">
+            <div id="upload-content">
+                <div style="font-size: 32px; margin-bottom: 12px;">📷</div>
+                <div style="font-size: 15px; font-weight: 600;">Click to Capture Photo</div>
+                <div style="font-size: 12px; color: var(--text-muted);">AI Vision Engine will auto-detect the issue</div>
+            </div>
+            <div id="ai-processing" class="hidden">
+                <div class="spinner"></div>
+                <div style="margin-top: 12px; font-size: 13px; font-weight: 600; color: var(--amber-solid);">AI is analyzing image...</div>
+            </div>
+        </div>
+
+        <!-- AI Review / Confirmation Box (Hidden initially) -->
+        <div id="ai-review-box" class="hidden" style="border: 1px solid #10B981; border-radius: 12px; padding: 20px; background: rgba(16, 185, 129, 0.05); margin-bottom: 24px;">
+            <span class="badge-outline" style="border-color: #10B981; color: #10B981; font-size: 10px; margin-bottom: 8px; display: inline-block;">✓ AI DETECTION COMPLETE</span>
+            <h4 style="font-size: 16px; margin: 0 0 4px 0;">Broken Water Pipe (Leakage)</h4>
+            <p style="font-size: 13px; margin: 0 0 16px 0; color: var(--text-muted);">Auto-Assigned Category: <strong style="color: var(--text-main);">Plumbing</strong></p>
+            
+            <div class="action-btn-group" id="ai-actions">
+                <button class="btn-confirm" onclick="confirmAI()">Looks Good, Confirm</button>
+                <button class="btn-edit" onclick="editManual()">Edit Manually</button>
+            </div>
+        </div>
+
+        <!-- Manual Category Grid (Hidden initially) -->
+        <div id="manual-category-box" class="hidden" style="margin-bottom: 24px;">
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Select category manually:</p>
+            <div class="category-grid">
+                <div class="cat-pill active">Plumbing</div>
+                <div class="cat-pill">Electrical</div>
+                <div class="cat-pill">Cleanliness</div>
+                <div class="cat-pill">IT / Tech</div>
+            </div>
+        </div>
+
+
+        <!-- STEP 2: LOCATION TAGGING -->
+        <label class="form-label" style="margin-top: 24px;">2. Location Verification</label>
+        <div class="segmented-control">
+          <div id="btn-qr" class="segment-btn active" onclick="setLoc('QR')">
+            <span>📷</span> Scan QR
+          </div>
+          <div id="btn-gps" class="segment-btn" onclick="setLoc('GPS')">
+            <span>📍</span> Auto GPS
+          </div>
+        </div>
+
+        <!-- Location Feedback -->
+        <div class="input-area" style="margin-top: 16px; min-height: 60px;">
+          <!-- QR Success -->
+          <div id="qr-result" class="success-box">
+            <span style="color: #10B981; margin-right: 8px;">✓</span> QR Scanned: Block 34, 2nd Floor
+          </div>
+          <!-- GPS Result (Hidden initially) -->
+          <div id="gps-result" class="success-box hidden" style="border-color: #3B82F6; background: rgba(59, 130, 246, 0.1); color: #3B82F6;">
+            <span style="margin-right: 8px;">🛰️</span> GPS Locked: Near Main Library (Lat: 28.53, Lng: 77.39)
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div style="margin-top: 32px; border-top: 1px solid var(--border-subtle); padding-top: 24px;">
+          <button id="final-submit-btn" class="btn-submit" onclick="submitSmartTicket()" style="width: 100%; font-size: 15px; padding: 14px;">Submit Ticket</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Column: User Context & Gamification -->
+    <div class="workspace-side">
+      
+      <!-- Profile Widget -->
+      <div class="modern-card profile-widget" style="padding: 24px;">
+        <div class="profile-header" style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+          <div class="avatar-circle">SK</div>
+          <div>
+            <h3 style="font-size: 16px; font-weight: 600; margin: 0;">Siddharth Kumar</h3>
+            <p class="light-text" style="font-size: 12px; margin: 2px 0 0 0;">ID: RK2P26BZB51</p>
+          </div>
+        </div>
+        <div class="badge-outline" style="width: fit-content; font-size: 11px;">B.Tech CSE - 1st Year</div>
+      </div>
+
+      <!-- Wallet / Civic Score Widget -->
+      <div class="modern-card wallet-widget" onclick="goToPage('rewards.html')" style="cursor: pointer; background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-input) 100%);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div>
+            <p class="light-text" style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Civic Balance</p>
+            <div style="font-size: 36px; font-weight: 700; line-height: 1; color: var(--amber-solid);">
+              <span id="user-score">175</span> <span style="font-size: 14px; font-weight: 500; color: var(--text-muted);">Pts</span>
+            </div>
+          </div>
+          <div class="icon-box" style="background: rgba(245, 158, 11, 0.1); color: var(--amber-solid); padding: 10px; border-radius: 8px;">
+            🏆
+          </div>
+        </div>
+        <div style="margin-top: 16px; font-size: 12px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">
+          <span>View Rewards Store</span>
+          <span>➔</span>
+        </div>
+      </div>
+
+      <!-- Recent Activity Minimal List -->
+      <div class="modern-card" style="padding: 24px;">
+        <h3 style="font-size: 14px; margin-bottom: 16px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Recent Reports</h3>
+        <div class="activity-list">
+          <div class="activity-item" style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+            <span style="font-size: 13px;">WiFi Down (Block 28)</span>
+            <span class="step-status text-amber" style="font-size: 10px; padding: 2px 6px;">Pending</span>
+          </div>
+          <div class="activity-item" style="display: flex; justify-content: space-between;">
+            <span style="font-size: 13px;">Broken Desk (Room 401)</span>
+            <span class="step-status text-green" style="font-size: 10px; padding: 2px 6px;">Resolved</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- Custom Toast Notification Box -->
+<div id="toast-box" class="toast hidden">
+  <span id="toast-message">Message yahan aayega</span>
+</div>
+
+
+
+
+
+
+
+
+  <!-- Global Tutorial Floating Button (Coming Soon) -->
+  <button class="floating-tutorial-btn no-print" onclick="showToast('Tutorial video will be deployed in Version 2.0')">
+    <span style="font-size: 10px;">▶</span> Watch Tutorial
+  </button>
+
+
+
+
+
+
+
+  <!-- Javascript yahan link hona zaruri hai -->
+  <script src="script.js"></script>
+</body>
+</html>
