@@ -381,3 +381,37 @@ function simpleUpvote(cardNumber) {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+/* =========================================
+   CAMERA ATTACHMENT & AI TRIGGER LOGIC
+   ========================================= */
+function updatePhotoLabel() {
+    let input = document.getElementById('ticket-photo');
+    let labelBox = document.getElementById('photo-label-box');
+    
+    if (input && input.files && input.files.length > 0) {
+        let fileName = input.files[0].name;
+        if (fileName.length > 15) {
+            fileName = fileName.substring(0, 15) + "...";
+        }
+        
+        // 1. Label ko green karna
+        labelBox.innerHTML = "✅ Photo Attached: " + fileName;
+        labelBox.style.background = "#dcfce7";
+        labelBox.style.border = "1px solid #10B981";
+
+        // 2. Thodi der baad AI verification animation start karna
+        setTimeout(() => {
+            startAIFlow();
+        }, 800);
+    }
+}
