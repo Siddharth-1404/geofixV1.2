@@ -1,6 +1,9 @@
 /* =========================================
-   1. GLOBAL FUNCTIONS (DOM Manipulation)
+   1. GLOBAL FUNCTIONS & UTILS
    ========================================= */
+let finalCategory = "Plumbing"; 
+let finalLocation = "Block 34, 2nd Floor"; 
+
 function showToast(message) {
     const toastBox = document.getElementById('toast-box');
     const toastMessage = document.getElementById('toast-message');
@@ -18,6 +21,7 @@ function goToPage(url) {
     }, 500);
 }
 
+// BFCache fix (Back button press karne par blank screen na aaye)
 window.addEventListener('pageshow', (event) => {
     if (event.persisted || document.body.classList.contains('page-fade-out')) {
         document.body.classList.remove('page-fade-out');
@@ -26,15 +30,34 @@ window.addEventListener('pageshow', (event) => {
 
 
 /* =========================================
-   2. SMART WORKFLOW LOGIC (Form Handling)
+   2. CAMERA & AI WORKFLOW (DASHBOARD)
    ========================================= */
-let finalCategory = "Plumbing"; 
-let finalLocation = "Block 34, 2nd Floor"; 
+function updatePhotoLabel() {
+    let input = document.getElementById('ticket-photo');
+    let labelBox = document.getElementById('photo-label-box');
+    
+    if (input && input.files && input.files.length > 0) {
+        let fileName = input.files[0].name;
+        if (fileName.length > 15) {
+            fileName = fileName.substring(0, 15) + "...";
+        }
+        
+        // 1. Label ko green karna
+        labelBox.innerHTML = "✅ Photo Attached: " + fileName;
+        labelBox.style.background = "#dcfce7";
+        labelBox.style.border = "1px solid #10B981";
+
+        // 2. Thodi der baad AI verification animation start karna
+        setTimeout(() => {
+            startAIFlow();
+        }, 800);
+    }
+}
 
 function startAIFlow() {
-    const uploadBox = document.getElementById('upload-box');
     const uploadContent = document.getElementById('upload-content');
     const aiProcessing = document.getElementById('ai-processing');
+    const uploadBox = document.getElementById('upload-box');
     const aiReviewBox = document.getElementById('ai-review-box');
     
     if(!uploadBox) return; 
@@ -62,6 +85,10 @@ function editManual() {
     document.getElementById('manual-category-box').classList.remove('hidden');
 }
 
+
+/* =========================================
+   3. LOCATION TAGGING (QR SCANNER & GPS)
+   ========================================= */
 function setLoc(type) {
     const btnQR = document.getElementById('btn-qr');
     const btnGPS = document.getElementById('btn-gps');
@@ -73,12 +100,18 @@ function setLoc(type) {
     if (type === 'QR') {
         btnQR.classList.add('active');
         btnGPS.classList.remove('active');
-        qrResult.classList.remove('hidden');
+        
+        // Purane results hide karo
+        qrResult.classList.add('hidden');
         gpsResult.classList.add('hidden');
-        finalLocation = "Block 34, 2nd Floor";
+        
+        // User ko native camera open karne ka prompt do
+        document.getElementById('qr-camera-input').click();
+        
     } else {
         btnGPS.classList.add('active');
         btnQR.classList.remove('active');
+        
         qrResult.classList.add('hidden');
         
         gpsResult.innerHTML = "Fetching Satellites... ⏳";
@@ -87,6 +120,26 @@ function setLoc(type) {
         setTimeout(() => {
             gpsResult.innerHTML = `<span style="margin-right: 8px;">🛰️</span> GPS Locked: Near Main Library (Lat: 28.53, Lng: 77.39)`;
             finalLocation = "Near Main Library";
+        }, 1500);
+    }
+}
+
+// Jab user QR ki photo khinch lega
+function processQR() {
+    const qrResult = document.getElementById('qr-result');
+    let input = document.getElementById('qr-camera-input');
+    
+    if (input && input.files && input.files.length > 0) {
+        // Scanning processing dikhao
+        qrResult.innerHTML = "Scanning QR Code... ⏳";
+        qrResult.classList.remove('hidden');
+        qrResult.style.color = "#d97706"; // Amber text
+        
+        // 1.5 second baad success dikhao
+        setTimeout(() => {
+            qrResult.style.color = "#15803d"; // Green text
+            qrResult.innerHTML = `<span style="color: #10B981; margin-right: 8px; font-weight: bold;">✓</span> QR Scanned: Block 34, 2nd Floor`;
+            finalLocation = "Block 34, 2nd Floor";
         }, 1500);
     }
 }
@@ -108,7 +161,7 @@ function submitSmartTicket() {
 
 
 /* =========================================
-   3. PAGE LOAD LOGIC (Session Storage - Unit V)
+   4. SESSION STORAGE & UI INIT (UNIT V)
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -133,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Smart Login Form Logic (Event Handling & Session Storage)
+    // Smart Login Form Logic (Session Storage)
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         const submitBtn = loginForm.querySelector('.btn-submit'); 
@@ -146,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.style.opacity = '0.7';
             
             setTimeout(() => {
-                // Session Storage set kar rahe hain
                 sessionStorage.setItem('loggedInUser', usernameInput);
                 document.body.classList.add('page-fade-out');
                 
@@ -161,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Dashboard par naam dikhane ka logic
+    // Welcome Text Setup
     const welcomeText = document.getElementById('welcome-text');
     if (welcomeText) {
         const savedUser = sessionStorage.getItem('loggedInUser');
@@ -172,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Category Pills (If any)
     const catPills = document.querySelectorAll('.cat-pill');
     catPills.forEach(pill => {
         pill.addEventListener('click', () => {
@@ -181,13 +234,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Page load hone par local storage se ideas load karna
+    // Feed page load hone par local storage se ideas nikalna
     loadSavedIdeas();
 });
 
 
 /* =========================================
-   4. ADMIN PANEL & DYNAMIC ROUTING
+   5. ADMIN PANEL & DYNAMIC ROUTING
    ========================================= */
 let ticketData = [
     { id: "TKT-101", issue: "Water Cooler Pipe Leakage", category: "Plumbing", location: "Block 34, 2nd Fl", reporter: "Siddharth (RK2P26BZB51)", status: "Pending" },
@@ -224,6 +277,7 @@ function renderTable(dataArray) {
     let ideasSection = document.getElementById('welfare-ideas-section'); 
     let maintenanceWrapper = document.getElementById('maintenance-only'); 
     
+    // RBAC: Role Based Access Control
     if (currentUser.includes('warden')) { 
         filteredData = dataArray.filter(t => t.location.includes('Hostel B7') || t.location.includes('BH'));
         if(pageTitle) pageTitle.innerText = "Hostel BH7 - Warden Dashboard";
@@ -298,9 +352,8 @@ function resolveTicket(index) {
 
 
 /* =========================================
-   5. FEED PAGE LOGIC (Local Storage API & JSON)
+   6. FEED PAGE LOGIC (Unit V - JSON & Local Storage)
    ========================================= */
-
 function toggleProposalForm() {
     let form = document.getElementById("proposal-form");
     if (form) {
@@ -312,35 +365,49 @@ function toggleProposalForm() {
     }
 }
 
-// Naya idea submit karne ka event handler (JSON + Web Storage API)
+// JSON Processing & Base64 Image Save
 function submitNewIdea(event) {
     event.preventDefault(); 
     
     let title = document.getElementById('idea-title').value;
     let desc = document.getElementById('idea-desc').value;
+    let imageInput = document.getElementById('idea-image'); 
     
     if(title === "" || desc === "") {
         alert("Please fill all details!");
         return;
     }
 
-    let newIdea = { title: title, desc: desc };
-    let savedIdeas = JSON.parse(localStorage.getItem('campusIdeas')) || [];
-    
-    savedIdeas.unshift(newIdea); 
-    localStorage.setItem('campusIdeas', JSON.stringify(savedIdeas));
+    function saveAndRender(imgBase64) {
+        let newIdea = { title: title, desc: desc, image: imgBase64 };
+        let savedIdeas = JSON.parse(localStorage.getItem('campusIdeas')) || [];
+        
+        savedIdeas.unshift(newIdea); 
+        localStorage.setItem('campusIdeas', JSON.stringify(savedIdeas));
 
-    showToast("Idea LIVE on Campus Feed! 🌟");
-    toggleProposalForm(); 
-    document.getElementById('idea-title').value = "";
-    document.getElementById('idea-desc').value = "";
+        showToast("Idea LIVE on Campus Feed! 🌟");
+        toggleProposalForm(); 
+        
+        document.getElementById('idea-title').value = "";
+        document.getElementById('idea-desc').value = "";
+        if (imageInput) imageInput.value = ""; 
 
-    loadSavedIdeas();
+        loadSavedIdeas();
+    }
+
+    if (imageInput && imageInput.files && imageInput.files[0]) {
+        let reader = new FileReader(); 
+        reader.onload = function(e) {
+            saveAndRender(e.target.result); 
+        };
+        reader.readAsDataURL(imageInput.files[0]);
+    } else {
+        saveAndRender("");
+    }
 }
 
-// Local Storage se data read karke screen par render karna
+// Dynamic Content Generation
 function loadSavedIdeas() {
-    // Tumhare screenshot ke hisab se div ki id
     let feedContainer = document.getElementById('dynamic-feed-container');
     if(!feedContainer) return;
 
@@ -350,13 +417,18 @@ function loadSavedIdeas() {
     existingDynamic.forEach(el => el.remove());
 
     savedIdeas.forEach(idea => {
+        let imageHTML = idea.image ? `<img src="${idea.image}" style="width: 100%; border-radius: 8px; margin-top: 12px; object-fit: cover; max-height: 250px;">` : "";
+
         let cardHTML = `
             <div class="card proposal-card dynamic-added-idea" style="margin-bottom: 20px; border-left: 4px solid #10B981; background: #ffffff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
                 <div class="flex" style="justify-content: space-between; align-items: start;">
-                    <div>
+                    <div style="width: 100%;">
                         <h3 style="color: #15803d; margin: 0 0 8px 0;">${idea.title}</h3>
                         <p style="color: #555; font-size: 14px; margin: 0 0 12px 0;">${idea.desc}</p>
-                        <span style="font-size: 11px; background: #e2e8f0; padding: 4px 8px; border-radius: 4px;">Just Now • By You</span>
+                        ${imageHTML}
+                        <div style="margin-top: 12px;">
+                            <span style="font-size: 11px; background: #e2e8f0; padding: 4px 8px; border-radius: 4px;">Just Now • By You</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -379,39 +451,5 @@ function simpleUpvote(cardNumber) {
             alert("Success! Initiative is ready for Official Review.");
             countElement.style.color = "#3B82F6"; 
         }
-    }
-}
-
-
-
-
-
-
-
-
-
-
-/* =========================================
-   CAMERA ATTACHMENT & AI TRIGGER LOGIC
-   ========================================= */
-function updatePhotoLabel() {
-    let input = document.getElementById('ticket-photo');
-    let labelBox = document.getElementById('photo-label-box');
-    
-    if (input && input.files && input.files.length > 0) {
-        let fileName = input.files[0].name;
-        if (fileName.length > 15) {
-            fileName = fileName.substring(0, 15) + "...";
-        }
-        
-        // 1. Label ko green karna
-        labelBox.innerHTML = "✅ Photo Attached: " + fileName;
-        labelBox.style.background = "#dcfce7";
-        labelBox.style.border = "1px solid #10B981";
-
-        // 2. Thodi der baad AI verification animation start karna
-        setTimeout(() => {
-            startAIFlow();
-        }, 800);
     }
 }
