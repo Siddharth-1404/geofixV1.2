@@ -85,9 +85,14 @@
         </div>
 
         <!-- STEP 2: Location Verification -->
+        <!-- STEP 2: Location Verification -->
         <label class="form-label" style="margin-top: 24px;">2. Location Verification</label>
+        
+        <!-- Hidden QR Camera Input -->
+        <input type="file" id="qr-camera-input" accept="image/*" capture="environment" style="display: none;" onchange="processQR()">
+
         <div class="segmented-control" style="margin-top: 12px;">
-          <div id="btn-qr" class="segment-btn active" onclick="setLoc('QR')">
+          <div id="btn-qr" class="segment-btn" onclick="setLoc('QR')">
             <span>📷</span> Scan QR
           </div>
           <div id="btn-gps" class="segment-btn" onclick="setLoc('GPS')">
@@ -97,13 +102,15 @@
 
         <!-- Location Feedback -->
         <div class="input-area" style="margin-top: 16px; min-height: 60px;">
-          <!-- QR Success -->
-          <div id="qr-result" class="success-box" style="padding: 12px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.05);">
-            <span style="color: #10B981; margin-right: 8px; font-weight: bold;">✓</span> QR Scanned: Block 34, 2nd Floor
+          
+          <!-- QR Result (Pehle se hidden rahega) -->
+          <div id="qr-result" class="success-box hidden" style="padding: 12px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.05);">
+            <!-- Data JS se aayega -->
           </div>
-          <!-- GPS Result -->
+
+          <!-- GPS Result (Pehle se hidden rahega) -->
           <div id="gps-result" class="success-box hidden" style="padding: 12px; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.2); background: rgba(59, 130, 246, 0.05); color: #3B82F6;">
-            <span style="margin-right: 8px;">🛰️</span> GPS Locked: Near Main Library (Lat: 28.53, Lng: 77.39)
+            <!-- Data JS se aayega -->
           </div>
         </div>
 
